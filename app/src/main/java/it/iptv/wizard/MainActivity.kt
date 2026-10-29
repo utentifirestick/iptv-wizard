@@ -70,41 +70,45 @@ class MainActivity : AppCompatActivity() {
         btnAccessibilita.setOnClickListener {
             var aperto = false
             
-            // Tentativo 1: Impostazioni Accessibilità standard (Xiaomi / Android TV)
+            // Tentativo 1: Impostazioni Accessibilità standard
             try {
                 val intent = Intent(Settings.ACTION_ACCESSIBILITY_SETTINGS)
+                intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
                 startActivity(intent)
                 aperto = true
                 Toast.makeText(this, "Scorri e attiva 'IPTV Wizard'", Toast.LENGTH_LONG).show()
             } catch (e: Exception) {}
 
-            // Tentativo 2: Impostazioni generali (se il primo fallisce)
+            // Tentativo 2: Impostazioni generali della TV (Xiaomi / Android TV)
             if (!aperto) {
                 try {
-                    val intentGenerale = Intent(Settings.ACTION_SETTINGS)
+                    val intentGenerale = Intent("android.settings.SETTINGS")
+                    intentGenerale.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
                     startActivity(intentGenerale)
                     aperto = true
-                    Toast.makeText(this, "Cerca 'Accessibilità' o 'Assistenza dispositivo'", Toast.LENGTH_LONG).show()
+                    Toast.makeText(this, "Cerca 'Accessibilità' nel menu a destra", Toast.LENGTH_LONG).show()
                 } catch (e: Exception) {}
             }
 
-            // Tentativo 3: Impostazioni specifiche di Fire TV (Opzioni dispositivo)
+            // Tentativo 3: Impostazioni specifiche Xiaomi
+            if (!aperto) {
+                try {
+                    val intentXiaomi = Intent("com.xiaomi.mitv.settings.action.SETTINGS")
+                    intentXiaomi.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+                    startActivity(intentXiaomi)
+                    aperto = true
+                    Toast.makeText(this, "Cerca 'Accessibilità' nel menu", Toast.LENGTH_LONG).show()
+                } catch (e: Exception) {}
+            }
+
+            // Tentativo 4: Impostazioni specifiche Fire TV
             if (!aperto) {
                 try {
                     val intentFire = Intent("com.amazon.tv.settings.action.DEVICE_OPTIONS")
+                    intentFire.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
                     startActivity(intentFire)
                     aperto = true
                     Toast.makeText(this, "Cerca 'Accessibilità' nelle opzioni del dispositivo", Toast.LENGTH_LONG).show()
-                } catch (e: Exception) {}
-            }
-
-            // Tentativo 4: Un altro percorso per Fire TV (Impostazioni generali Amazon)
-            if (!aperto) {
-                try {
-                    val intentFire2 = Intent("com.amazon.tv.settings.action.SETTINGS")
-                    startActivity(intentFire2)
-                    aperto = true
-                    Toast.makeText(this, "Cerca 'Accessibilità' nel menu", Toast.LENGTH_LONG).show()
                 } catch (e: Exception) {}
             }
 
