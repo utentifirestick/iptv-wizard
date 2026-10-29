@@ -66,40 +66,24 @@ class MainActivity : AppCompatActivity() {
             }
         }
 
-        // --- PULSANTE 2: ATTIVA AVVIO AUTOMATICO (Compatibile Fire OS) ---
+        // --- PULSANTE 2: ATTIVA AVVIO AUTOMATICO (Universale) ---
         btnAccessibilita.setOnClickListener {
-            var aperto = false
+            // Controlla se siamo su una Fire TV
+            val isFireTV = packageManager.hasSystemFeature("amazon.hardware.fire_tv")
             
-            // Tentativo 1: Schermata Accessibilità standard di Android
-            try {
-                val intent = Intent(Settings.ACTION_ACCESSIBILITY_SETTINGS)
-                startActivity(intent)
-                aperto = true
-            } catch (e: Exception) {}
-
-            // Tentativo 2: Impostazioni generali (Fire OS a volte nasconde l'accessibilità qui)
-            if (!aperto) {
+            if (isFireTV) {
+                // Se è Fire TV, mostriamo il messaggio che l'avvio si fa col PC
+                Toast.makeText(this, "Su Fire TV l'avvio automatico si attiva SOLO dal Kit col PC. Usa il tuo programma installa.bat.", Toast.LENGTH_LONG).show()
+            } else {
+                // Se è Xiaomi o altra Android TV, proviamo ad aprire l'Accessibilità
                 try {
-                    val intentGenerale = Intent(Settings.ACTION_SETTINGS)
-                    startActivity(intentGenerale)
-                    Toast.makeText(this, "Cerca 'Accessibilità' nelle impostazioni.", Toast.LENGTH_LONG).show()
-                    aperto = true
-                } catch (e: Exception) {}
-            }
-
-            // Tentativo 3: Opzioni sviluppatore / Sicurezza di Fire OS
-            if (!aperto) {
-                try {
-                    val intentFire = Intent("com.amazon.tv.settings.action.DEVICE_OPTIONS")
-                    startActivity(intentFire)
-                    Toast.makeText(this, "Cerca 'Accessibilità' nelle opzioni del dispositivo.", Toast.LENGTH_LONG).show()
-                    aperto = true
-                } catch (e: Exception) {}
-            }
-
-            // Tentativo 4: Se proprio non trova nulla, mostra un messaggio
-            if (!aperto) {
-                Toast.makeText(this, "Impossibile aprire le impostazioni. Vai in Impostazioni > Assistenza dispositivo.", Toast.LENGTH_LONG).show()
+                    val intent = Intent(Settings.ACTION_ACCESSIBILITY_SETTINGS)
+                    startActivity(intent)
+                    Toast.makeText(this, "Scorri e attiva 'IPTV Wizard'", Toast.LENGTH_LONG).show()
+                } catch (e: Exception) {
+                    // Se anche Xiaomi dà errore (a volte nasconde l'opzione), mostriamo un messaggio
+                    Toast.makeText(this, "Impossibile aprire le impostazioni. Cerca 'Accessibilità' nel menu della TV.", Toast.LENGTH_LONG).show()
+                }
             }
         }
     }
