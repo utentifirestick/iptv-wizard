@@ -68,22 +68,49 @@ class MainActivity : AppCompatActivity() {
 
         // --- PULSANTE 2: ATTIVA AVVIO AUTOMATICO (Universale) ---
         btnAccessibilita.setOnClickListener {
-            // Controlla se siamo su una Fire TV
-            val isFireTV = packageManager.hasSystemFeature("amazon.hardware.fire_tv")
+            var aperto = false
             
-            if (isFireTV) {
-                // Se è Fire TV, mostriamo il messaggio che l'avvio si fa col PC
-                Toast.makeText(this, "Su Fire TV l'avvio automatico si attiva SOLO dal Kit col PC. Usa il tuo programma installa.bat.", Toast.LENGTH_LONG).show()
-            } else {
-                // Se è Xiaomi o altra Android TV, proviamo ad aprire l'Accessibilità
+            // Tentativo 1: Impostazioni Accessibilità standard (Xiaomi / Android TV)
+            try {
+                val intent = Intent(Settings.ACTION_ACCESSIBILITY_SETTINGS)
+                startActivity(intent)
+                aperto = true
+                Toast.makeText(this, "Scorri e attiva 'IPTV Wizard'", Toast.LENGTH_LONG).show()
+            } catch (e: Exception) {}
+
+            // Tentativo 2: Impostazioni generali (se il primo fallisce)
+            if (!aperto) {
                 try {
-                    val intent = Intent(Settings.ACTION_ACCESSIBILITY_SETTINGS)
-                    startActivity(intent)
-                    Toast.makeText(this, "Scorri e attiva 'IPTV Wizard'", Toast.LENGTH_LONG).show()
-                } catch (e: Exception) {
-                    // Se anche Xiaomi dà errore (a volte nasconde l'opzione), mostriamo un messaggio
-                    Toast.makeText(this, "Impossibile aprire le impostazioni. Cerca 'Accessibilità' nel menu della TV.", Toast.LENGTH_LONG).show()
-                }
+                    val intentGenerale = Intent(Settings.ACTION_SETTINGS)
+                    startActivity(intentGenerale)
+                    aperto = true
+                    Toast.makeText(this, "Cerca 'Accessibilità' o 'Assistenza dispositivo'", Toast.LENGTH_LONG).show()
+                } catch (e: Exception) {}
+            }
+
+            // Tentativo 3: Impostazioni specifiche di Fire TV (Opzioni dispositivo)
+            if (!aperto) {
+                try {
+                    val intentFire = Intent("com.amazon.tv.settings.action.DEVICE_OPTIONS")
+                    startActivity(intentFire)
+                    aperto = true
+                    Toast.makeText(this, "Cerca 'Accessibilità' nelle opzioni del dispositivo", Toast.LENGTH_LONG).show()
+                } catch (e: Exception) {}
+            }
+
+            // Tentativo 4: Un altro percorso per Fire TV (Impostazioni generali Amazon)
+            if (!aperto) {
+                try {
+                    val intentFire2 = Intent("com.amazon.tv.settings.action.SETTINGS")
+                    startActivity(intentFire2)
+                    aperto = true
+                    Toast.makeText(this, "Cerca 'Accessibilità' nel menu", Toast.LENGTH_LONG).show()
+                } catch (e: Exception) {}
+            }
+
+            // Se nessuno dei tentativi funziona, mostra un messaggio chiaro
+            if (!aperto) {
+                Toast.makeText(this, "Su questo dispositivo l'avvio automatico si attiva SOLO dal Kit col PC.", Toast.LENGTH_LONG).show()
             }
         }
     }
